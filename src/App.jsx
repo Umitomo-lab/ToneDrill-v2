@@ -16,8 +16,8 @@ import {
 const tuningDefaults = TUNING_DEFAULTS;
 
 // 共通部品（CheckInterval InputWithButton）
-function InputWithButton({ 
-  placeholder, value, onChange, onKeyDown, onClick, buttonLabel 
+function InputWithButton({
+  placeholder, value, onChange, onKeyDown, onClick, buttonLabel
 }) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-[2fr_1fr] gap-2 items-center">
@@ -97,13 +97,26 @@ function App() {
   }
 
   // クロマティックインターバル計算（ChordTone用）
-  function getChromaticInterval(root, note) {
-    if (!root) return '';
-    const rootIdx = NOTE_INDEX[root];
-    const noteIdx = NOTE_INDEX[note];
-    const diff = (noteIdx - rootIdx + 12) % 12;
-    return CHROMATIC_INTERVALS_INDEX[diff] || 'N/A';
+ function getChromaticInterval(root, note) {
+  if (!root) return '';
+
+  const rootIdx = NOTE_INDEX[root];
+  const noteIdx = NOTE_INDEX[note];
+
+  if (rootIdx === undefined || noteIdx === undefined) {
+    return 'N/A';
   }
+
+  const diff = (noteIdx - rootIdx + 12) % 12;
+
+  for (const [intervalName, semitone] of Object.entries(CHROMATIC_INTERVALS_INDEX)) {
+    if (semitone === diff) {
+      return intervalName;
+    }
+  }
+
+  return 'N/A';
+}
 
   // 入力処理（SingleTone / ChordTone 共通）
   function handleInput() {
@@ -174,12 +187,12 @@ function App() {
       <div className="w-full max-w-2xl mx-4 p-6 border rounded-lg shadow-md bg-white
         flex flex-col items-center space-y-4">
         <h1 className='text-3xl font-bold mb-4'>ToneDrill</h1>
-        
+
         {/* チューニングセクション(mode選択後非表示) */}
         {!mode && (
           <div className="tuning-section w-full px-4 py-6 bg-white rounded-md">
             <label className='block text-center text-lg font-semibold mb-6'>
-              Tuning (Edit each string) 
+              Tuning (Edit each string)
             </label>
 
             <div className="space-y-4">
@@ -208,7 +221,7 @@ function App() {
             </div>
           </div>
           )}
-        
+
         <div className="controls-container w-full max-w-2xl mx-auto mt-6 p-6 bg-white border rounded-lg shadow-md space-y-6">
         {!mode && (
           <>
@@ -268,7 +281,7 @@ function App() {
               </button>
             </div>
           )}
-          
+
           {/* Conditional Mode Inputs */}
           {mode && (
             <>
@@ -296,7 +309,7 @@ function App() {
                         onClick={handleInput}
                         buttonLabel="Check Interval"
                       />
-              
+
                       <div className="message-log">
                         {messages.map((msg, i) => (
                           <div key={i}>{msg}</div>
@@ -326,7 +339,7 @@ function App() {
                       }}
                       className="border rounded px-2 py-1 w-full"
                       />
-                      <button 
+                      <button
                         onClick={handleRootInput}
                         className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition w-full"
                       >
@@ -353,7 +366,7 @@ function App() {
                     onClick={handleInput}
                     buttonLabel="Check Interval"
                   />
-              
+
                   <div className="message-log">
                     {messages.map((msg, i) => (
                       <div key={i}>{msg}</div>
